@@ -73,15 +73,15 @@ const sellerTransaction = async (addressPubKey, latlong, price, date) => {
   return transaction;
 };
 
-const signStrTransaction = async (addressPubKey, recipient, value, sellerAddressPubKey, previous_hash_transaction) => {
+const signStrTransaction = async (addressPubKey, recipient, value, previous_hash_transaction) => {
   const accountInfo = await server.loadAccount(addressWallet);
 
-  // check online previous_hash_transaction-creator c'est le sellerAddressPubKey
+  // check if previous hash_transaction's creator is the recipient
   try {
-    fetch(`https://stellar.expert/explorer/testnet/tx/${previous_hash_transaction}`)
+    fetch(`https://horizon-testnet.stellar.org/transactions/${previous_hash_transaction}`)
     .then(res => res.json())
-    .then(function(out) {
-      if (sellerAddressPubKey != out.sourceAccount)
+    .then(data => {
+      if (recipient != data.source_account)
         throw "monException"
     });
   } catch (error) {
