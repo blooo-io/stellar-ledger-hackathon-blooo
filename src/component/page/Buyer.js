@@ -1,8 +1,14 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 
 const Buyer = () => {
+  const generateQR = () => {
+    //
+  }
   return (
-    <div>Buyer</div>
+    <Fragment>
+      <div>Buyer</div>
+      <button onClick={generateQR()}>Generate QR</button>
+    </Fragment>
   )
 }
 

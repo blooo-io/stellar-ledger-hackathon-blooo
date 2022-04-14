@@ -1,8 +1,15 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 
 const Seller = () => {
+
+  const scanQR = () => {
+    //
+  }
   return (
-    <div>Seller</div>
+    <Fragment>
+      <div>Seller</div>
+      <button onClick={scanQR()}>Scan QR</button>
+    </Fragment>
   )
 }
 

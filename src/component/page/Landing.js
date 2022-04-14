@@ -1,8 +1,15 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 
 const Landing = () => {
   return (
-    <div>Landing</div>
+    <Fragment>
+      <ul className='horizontal'>
+        <li><a href="">Landing</a></li>
+        <li><a href="">Buyer</a></li>
+        <li><a href="">Seller</a></li>
+      </ul>
+      <div>Landing</div>
+    </Fragment>
   )
 }
 
