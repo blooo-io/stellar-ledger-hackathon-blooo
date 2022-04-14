@@ -1,13 +1,23 @@
-import React, { Fragment } from 'react'
+import React, { Fragment, useState } from 'react'
+import QrCode from './QrCode'
+
+
+const publicKey="GBXVND3EA436LZZVVXX7AKVAF42664L5IKIAKDVFIVFEZUCICEONVWLJ"
+
 
 const Buyer = () => {
-  const generateQR = () => {
-    //
-  }
+  const [displayQr, setDisplayQr] = useState(false)
+
+  
   return (
     <Fragment>
-      <div>Buyer</div>
-      <button onClick={generateQR()}>Generate QR</button>
+      {displayQr && <QrCode publicKey={publicKey}></QrCode>}
+      {!displayQr &&
+        <Fragment>
+          <div>Buyer</div>
+          <button onClick={() => setDisplayQr(true)}>Generate QR</button>
+        </Fragment>
+      }
     </Fragment>
   )
 }
