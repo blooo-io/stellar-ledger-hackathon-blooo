@@ -1,8 +1,3 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import Str from "@ledgerhq/hw-app-str";
 import StellarSdk from "stellar-sdk";
@@ -19,6 +14,7 @@ let recipient = StellarSdk.Keypair.random().publicKey();
 let value = 10;
 let gasPrice;
 
+
 const getStrAppVersion = async () => {
   transport = await TransportWebUSB.create();
   str = new Str(transport);
@@ -33,59 +29,14 @@ const getStrPublicKey = async () => {
   return result.publicKey;
 };
 
-const sellerTransaction = async (addressPubKey, latlong, price, date) => {
-  const accountInfo = await server.loadAccount(addressWallet);
-  const transaction = new StellarSdk.TransactionBuilder(accountInfo, {
-      fee: StellarSdk.BASE_FEE,
-      networkPassphrase: StellarSdk.Networks.TESTNET,
-      timebounds: await server.fetchTimebounds(100),
-    })
-      .addOperation(StellarSdk.Operation.manageData(
-        {
-        name: "latlong",
-        value: latlong,
-        },
-        {
-          name: "date",
-          value: date,
-        },
-        {
-          name: "price",
-          value: price,
-        }
-      ))
-      .addMemo(StellarSdk.Memo.text("Test Transaction"))
-      .build();
-  const result = await str.signTransaction(
-    "44'/148'/0'",
-    transaction.signatureBase()
-  );
-
-  // add signature to transaction
-  const keyPair = StellarSdk.Keypair.fromPublicKey(addressPubKey);
-  const hint = keyPair.signatureHint();
-  const decorated = new StellarSdk.xdr.DecoratedSignature({
-    hint: hint,
-    signature: result.signature,
-  });
-  transaction.signatures.push(decorated);
-
-  return transaction;
-};
-
-const signStrTransaction = async (addressPubKey, recipient, value, previous_hash_transaction) => {
+const signStrTransaction = async (addressPubKey, recipient, value) => {
   const accountInfo = await server.loadAccount(addressWallet);
 
-  // check if previous hash_transaction's creator is the recipient
+  //Create the recipient address
   try {
-    fetch(`https://horizon-testnet.stellar.org/transactions/${previous_hash_transaction}`)
-    .then(res => res.json())
-    .then(data => {
-      if (recipient != data.source_account)
-        throw "monException"
-    });
+    fetch(`https://friendbot.stellar.org?addr=${recipient}`);
   } catch (error) {
-    console.error("Failed the previous hash transaction's creator is the sellerAddressPubKey! Please try again.");
+    console.error("Failed to fund demo account! Please try again later.");
   }
 
   const transaction = new StellarSdk.TransactionBuilder(accountInfo, {
@@ -158,16 +109,3 @@ document.getElementById("tx-transfer").onclick = async function () {
   document.getElementById("url").href = url;
 
 };
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();

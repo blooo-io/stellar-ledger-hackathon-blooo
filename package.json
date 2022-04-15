@@ -1,42 +1,29 @@
 {
-  "name": "stellar-ledger-hackathon",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^13.0.1",
-    "@testing-library/user-event": "^13.5.0",
-    "bootstrap": "^5.1.3",
-    "qrcode.react": "^3.0.1",
-    "react": "^18.0.0",
-    "react-bootstrap": "^2.2.3",
-    "react-dom": "^18.0.0",
-    "react-router-dom": "^6.3.0",
-    "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
-  },
+  "name": "stellar-ledger-hackathon-blooo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blooo-io/stellar-ledger-hackathon-blooo.git"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  }
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "parcel": "^2.0.1"
+  },
+  "dependencies": {
+    "@ledgerhq/hw-app-str": "^6.24.1",
+    "@ledgerhq/hw-transport-webusb": "^6.19.0",
+    "@ledgerhq/logs": "^6.10.0",
+    "stellar-sdk": "^10.0.1"
+  },
+
+  "bugs": {
+    "url": "https://github.com/blooo-io/stellar-ledger-hackathon-blooo/issues"
+  },
+  "homepage": "https://github.com/blooo-io/stellar-ledger-hackathon-blooo#readme"
 }
