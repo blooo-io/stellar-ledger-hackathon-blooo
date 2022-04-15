@@ -1,48 +1,205 @@
-<div class="container-fluid">
-    <div class="text-center">
 
-        <img src="https://chart.googleapis.com/chart?cht=qr&chl=Hello+World&chs=160x160&chld=L|0"
-            class="qr-code img-thumbnail img-responsive" />
-    </div>
+<!DOCTYPE html>
+<html>
 
-    <div class="form-horizontal">
-        <div class="form-group">
-            <label class="control-label col-sm-2" for="content">
-                Price:
-            </label>
-            <div class="col-sm-10">
-                <input type="text" size="60" maxlength="60" class="form-control" id="price"
-                    placeholder="Enter a price" />
+<head>
+  <title>Parcel Sandbox</title>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="../styles.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+  <script type="module" src="../index.js"></script>
+</head>
+
+<body class="m-5">
+  <div id="root">
+    <div id="main-page">
+        <div class="container-fluid">
+            <div class="text-center">
+        
+                <img src="https://chart.googleapis.com/chart?cht=qr&chl=Hello+World&chs=160x160&chld=L|0"
+                    class="qr-code img-thumbnail img-responsive" />
+            </div>
+        
+            <div class="form-horizontal">
+                <div class="form-group">
+                    <label class="control-label col-sm-2" for="content">
+                        Price:
+                    </label>
+                    <div class="col-sm-10">
+                        <input type="text" size="60" maxlength="60" class="form-control" value="30" id="price"
+                            placeholder="Enter a price" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+        
+                        <button type="button" class="btn btn-default" id="generateSeller">
+                            Generate
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-sm-offset-2 col-sm-10">
-
-                <button type="button" class="btn btn-default" id="generate">
-                    Generate
-                </button>
-            </div>
-        </div>
+        <script src="https://code.jquery.com/jquery-3.5.1.js">
+        </script>
     </div>
-</div>
-<script src="https://code.jquery.com/jquery-3.5.1.js">
-</script>
 
-<script>
-    function htmlEncode(value) {
-        return $('<div/>').text(value)
-            .html();
-    }
+  </div>
 
-    $(function () {
 
-        $('#generate').click(function () {
-            let finalURL =
-                'https://chart.googleapis.com/chart?cht=qr&chl=' +
-                htmlEncode($('#price').val()) +
-                '&chs=160x160&chld=L|0'
 
-            $('.qr-code').attr('src', finalURL);
-        });
+  <div id="footer" class="mt-3">
+    <p id="version"></p>
+  </div>
+
+<script type="module">
+
+import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
+import Str from "@ledgerhq/hw-app-str";
+import StellarSdk from "stellar-sdk";
+import { listen } from "@ledgerhq/logs";
+const server = new StellarSdk.Server("https://horizon-testnet.stellar.org");
+
+listen((log) => console.log(log));
+
+let transport;
+let str;
+let addressWallet;
+let recipient = StellarSdk.Keypair.random().publicKey();
+let value = 10;
+let gasPrice;
+
+
+const getStrAppVersion = async () => {
+  transport = await TransportWebUSB.create();
+  str = new Str(transport);
+  const result = await str.getAppConfiguration();
+  return result.version;
+};
+
+const getStrPublicKey = async () => {
+  transport = await TransportWebUSB.create();
+  str = new Str(transport);
+  const result = await str.getPublicKey("44'/148'/0'");
+  return result.publicKey;
+};
+
+
+const signStrTransaction = async (addressPubKey, recipient, value, previous_hash_transaction) => {
+  const accountInfo = await server.loadAccount(addressWallet);
+
+  // check if previous hash_transaction's creator is the recipient
+  try {
+    fetch(`https://horizon-testnet.stellar.org/transactions/${previous_hash_transaction}`)
+    .then(res => res.json())
+    .then(data => {
+      if (recipient != data.source_account)
+        throw "Error Atomicity Transactions"
     });
+  } catch (error) {
+    console.error("Failed to fund demo account! Please try again later.");
+  }
+
+  const transaction = new StellarSdk.TransactionBuilder(accountInfo, {
+    fee: StellarSdk.BASE_FEE,
+    networkPassphrase: StellarSdk.Networks.TESTNET,
+    timebounds: await server.fetchTimebounds(100),
+  })
+    .addOperation(StellarSdk.Operation.payment({
+      destination: recipient,
+      asset: StellarSdk.Asset.native(),
+      amount: value,
+    }))
+    .addMemo(StellarSdk.Memo.text("Test Transaction"))
+    .build();
+
+  const result = await str.signTransaction(
+    "44'/148'/0'",
+    transaction.signatureBase()
+  );
+
+  // add signature to transaction
+  const keyPair = StellarSdk.Keypair.fromPublicKey(addressPubKey);
+  const hint = keyPair.signatureHint();
+  const decorated = new StellarSdk.xdr.DecoratedSignature({
+    hint: hint,
+    signature: result.signature,
+  });
+  transaction.signatures.push(decorated);
+
+  return transaction;
+};
+
+// Seller send data transaction in order to generate a new qrcode
+const sellerTransaction = async (addressPubKey, latlong, price, date) => {
+
+const accountInfo = await server.loadAccount(addressWallet);
+const transaction = new StellarSdk.TransactionBuilder(accountInfo, {
+    fee: StellarSdk.BASE_FEE,
+    networkPassphrase: StellarSdk.Networks.TESTNET,
+    timebounds: await server.fetchTimebounds(100),
+  })
+    .addOperation(StellarSdk.Operation.manageData(
+      {
+      name: "latlong",
+      value: latlong,
+      },
+      {
+        name: "date",
+        value: date,
+      },
+      {
+        name: "price",
+        value: price,
+      }
+    ))
+    .addMemo(StellarSdk.Memo.text("Test Transaction"))
+    .build();
+const result = await str.signTransaction(
+  "44'/148'/0'",
+  transaction.signatureBase()
+);
+
+// add signature to transaction
+const keyPair = StellarSdk.Keypair.fromPublicKey(addressPubKey);
+const hint = keyPair.signatureHint();
+const decorated = new StellarSdk.xdr.DecoratedSignature({
+  hint: hint,
+  signature: result.signature,
+});
+transaction.signatures.push(decorated);
+
+return transaction;
+};
+
+document.getElementById("generateSeller").onclick = async function () {
+
+sellerTransaction("GBXVND3EA436LZZVVXX7AKVAF42664L5IKIAKDVFIVFEZUCICEONVWLJ", "48.8665157,2.3340766" ,"30");
+
+
+// //Getting information from the inputs
+// value = document.getElementById("price").value;
+// recipient = document.getElementById("recipient").value;
+
+// //Building transaction with the information gathered
+// const transaction = await signStrTransaction(addressWallet, recipient, value);
+
+// const transactionResult = await server.submitTransaction(transaction);
+
+// // Display the Ropsten etherscan on the screen
+// const hash = transactionResult.hash;
+// const url = "http://testnet.stellarchain.io/tx/" + hash ;
+// document.getElementById("url").innerHTML = url;
+// document.getElementById("url").href = url;
+
+};
+
 </script>
+</body>
+
+</html>
