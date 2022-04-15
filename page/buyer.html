@@ -44,7 +44,7 @@
     $(function () {
 
         $('#generate').click(function () {
-            concat_value = $('#longlat').val() + $('#pbk').val()
+            concat_value = $('#longlat').val() +","+ $('#pbk').val()
             let finalURL =
                 'https://chart.googleapis.com/chart?cht=qr&chl=' +
                 htmlEncode(concat_value) +
