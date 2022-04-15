@@ -33,7 +33,12 @@ const getStrPublicKey = async () => {
   return result.publicKey;
 };
 
-const sellerTransaction = async (addressPubKey, latlong, price, date) => {
+// Buyer send token transaction
+const buyerTransaction = async (addressPubKey) => {
+  const token = new StellarSdk.Asset(
+    "Blooo",
+    "GC2BKLYOOYPDEFJKLKY6FNNRQMGFLVHJKQRGNSSRRGSMPGF32LHCQVGF",
+  );
   const accountInfo = await server.loadAccount(addressWallet);
   const transaction = new StellarSdk.TransactionBuilder(accountInfo, {
       fee: StellarSdk.BASE_FEE,
@@ -42,16 +47,8 @@ const sellerTransaction = async (addressPubKey, latlong, price, date) => {
     })
       .addOperation(StellarSdk.Operation.manageData(
         {
-        name: "latlong",
-        value: latlong,
-        },
-        {
-          name: "date",
-          value: date,
-        },
-        {
-          name: "price",
-          value: price,
+        name: "token",
+        value: token,
         }
       ))
       .addMemo(StellarSdk.Memo.text("Test Transaction"))
@@ -73,16 +70,62 @@ const sellerTransaction = async (addressPubKey, latlong, price, date) => {
   return transaction;
 };
 
-const signStrTransaction = async (addressPubKey, recipient, value, previous_hash_transaction) => {
+// Seller send data transaction in order to generate a new qrcode
+const sellerTransaction = async (addressPubKey, latlong, price, date, token) => {
+  const accountInfo = await server.loadAccount(addressWallet);
+  const transaction = new StellarSdk.TransactionBuilder(accountInfo, {
+      fee: StellarSdk.BASE_FEE,
+      networkPassphrase: StellarSdk.Networks.TESTNET,
+      timebounds: await server.fetchTimebounds(100),
+    })
+      .addOperation(StellarSdk.Operation.manageData(
+        {
+        name: "latlong",
+        value: latlong,
+        },
+        {
+          name: "date",
+          value: date,
+        },
+        {
+          name: "price",
+          value: price,
+        },
+        {
+          name: "token",
+          value: token,
+        }
+      ))
+      .addMemo(StellarSdk.Memo.text("Test Transaction"))
+      .build();
+  const result = await str.signTransaction(
+    "44'/148'/0'",
+    transaction.signatureBase()
+  );
+
+  // add signature to transaction
+  const keyPair = StellarSdk.Keypair.fromPublicKey(addressPubKey);
+  const hint = keyPair.signatureHint();
+  const decorated = new StellarSdk.xdr.DecoratedSignature({
+    hint: hint,
+    signature: result.signature,
+  });
+  transaction.signatures.push(decorated);
+
+  return transaction;
+};
+
+const signStrTransaction = async (addressPubKey, recipient, value, previous_hash_transaction, token_issuer) => {
   const accountInfo = await server.loadAccount(addressWallet);
 
   // check if previous hash_transaction's creator is the recipient
+  // check if token_issuer is the addressPubKey
   try {
     fetch(`https://horizon-testnet.stellar.org/transactions/${previous_hash_transaction}`)
     .then(res => res.json())
     .then(data => {
-      if (recipient != data.source_account)
-        throw "monException"
+      if (recipient != data.source_account || addressPubKey != token_issuer)
+        throw "Error Atomicity Transactions"
     });
   } catch (error) {
     console.error("Failed the previous hash transaction's creator is the sellerAddressPubKey! Please try again.");
