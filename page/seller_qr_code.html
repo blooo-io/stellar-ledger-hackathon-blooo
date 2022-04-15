@@ -58,11 +58,11 @@
   </div>
 
 <script type="module">
-
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import Str from "@ledgerhq/hw-app-str";
 import StellarSdk from "stellar-sdk";
 import { listen } from "@ledgerhq/logs";
+
 const server = new StellarSdk.Server("https://horizon-testnet.stellar.org");
 
 listen((log) => console.log(log));
@@ -89,18 +89,12 @@ const getStrPublicKey = async () => {
   return result.publicKey;
 };
 
+const signStrTransaction = async (addressPubKey, recipient, value) => {
+  const accountInfo = await server.loadAccount("GBXVND3EA436LZZVVXX7AKVAF42664L5IKIAKDVFIVFEZUCICEONVWLJ");
 
-const signStrTransaction = async (addressPubKey, recipient, value, previous_hash_transaction) => {
-  const accountInfo = await server.loadAccount(addressWallet);
-
-  // check if previous hash_transaction's creator is the recipient
+  //Create the recipient address
   try {
-    fetch(`https://horizon-testnet.stellar.org/transactions/${previous_hash_transaction}`)
-    .then(res => res.json())
-    .then(data => {
-      if (recipient != data.source_account)
-        throw "Error Atomicity Transactions"
-    });
+    fetch(`https://friendbot.stellar.org?addr=${recipient}`);
   } catch (error) {
     console.error("Failed to fund demo account! Please try again later.");
   }
@@ -135,67 +129,14 @@ const signStrTransaction = async (addressPubKey, recipient, value, previous_hash
   return transaction;
 };
 
-// Seller send data transaction in order to generate a new qrcode
-const sellerTransaction = async (addressPubKey, latlong, price, date) => {
-
-const accountInfo = await server.loadAccount(addressWallet);
-const transaction = new StellarSdk.TransactionBuilder(accountInfo, {
-    fee: StellarSdk.BASE_FEE,
-    networkPassphrase: StellarSdk.Networks.TESTNET,
-    timebounds: await server.fetchTimebounds(100),
-  })
-    .addOperation(StellarSdk.Operation.manageData(
-      {
-      name: "latlong",
-      value: latlong,
-      },
-      {
-        name: "date",
-        value: date,
-      },
-      {
-        name: "price",
-        value: price,
-      }
-    ))
-    .addMemo(StellarSdk.Memo.text("Test Transaction"))
-    .build();
-const result = await str.signTransaction(
-  "44'/148'/0'",
-  transaction.signatureBase()
-);
-
-// add signature to transaction
-const keyPair = StellarSdk.Keypair.fromPublicKey(addressPubKey);
-const hint = keyPair.signatureHint();
-const decorated = new StellarSdk.xdr.DecoratedSignature({
-  hint: hint,
-  signature: result.signature,
-});
-transaction.signatures.push(decorated);
-
-return transaction;
-};
-
 document.getElementById("generateSeller").onclick = async function () {
+  //Getting information from the inputs
+  value = document.getElementById("price").value;
 
-sellerTransaction("GBXVND3EA436LZZVVXX7AKVAF42664L5IKIAKDVFIVFEZUCICEONVWLJ", "48.8665157,2.3340766" ,"30");
+  //Building transaction with the information gathered
+  const transaction = await signStrTransaction("GBXVND3EA436LZZVVXX7AKVAF42664L5IKIAKDVFIVFEZUCICEONVWLJ", "GAAR5R4PL4ON7HT6PJFUDTB4VZX2ML7XLE42TUFRIGW72VMJQX2EK4CZ", value);
 
-
-// //Getting information from the inputs
-// value = document.getElementById("price").value;
-// recipient = document.getElementById("recipient").value;
-
-// //Building transaction with the information gathered
-// const transaction = await signStrTransaction(addressWallet, recipient, value);
-
-// const transactionResult = await server.submitTransaction(transaction);
-
-// // Display the Ropsten etherscan on the screen
-// const hash = transactionResult.hash;
-// const url = "http://testnet.stellarchain.io/tx/" + hash ;
-// document.getElementById("url").innerHTML = url;
-// document.getElementById("url").href = url;
+  const transactionResult = await server.submitTransaction(transaction);
 
 };
 
