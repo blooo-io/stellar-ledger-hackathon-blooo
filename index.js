@@ -1,8 +1,3 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import Str from "@ledgerhq/hw-app-str";
 import StellarSdk from "stellar-sdk";
@@ -18,6 +13,7 @@ let addressWallet;
 let recipient = StellarSdk.Keypair.random().publicKey();
 let value = 10;
 let gasPrice;
+
 
 const getStrAppVersion = async () => {
   transport = await TransportWebUSB.create();
@@ -92,7 +88,7 @@ const signStrTransaction = async (addressPubKey, recipient, value, previous_hash
         throw "Error Atomicity Transactions"
     });
   } catch (error) {
-    console.error("Failed the previous hash transaction's creator is the sellerAddressPubKey! Please try again.");
+    console.error("Failed to fund demo account! Please try again later.");
   }
 
   const transaction = new StellarSdk.TransactionBuilder(accountInfo, {
@@ -165,16 +161,3 @@ document.getElementById("tx-transfer").onclick = async function () {
   document.getElementById("url").href = url;
 
 };
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
