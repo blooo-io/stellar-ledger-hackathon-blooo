@@ -119,13 +119,13 @@ const signStrTransaction = async (addressPubKey, recipient, value, previous_hash
   const accountInfo = await server.loadAccount(addressWallet);
 
   // check if previous hash_transaction's creator is the recipient
-  // check if token_issuer is the buyer's addressPubKey
+  // check if token_issuer is the addressPubKey
   try {
     fetch(`https://horizon-testnet.stellar.org/transactions/${previous_hash_transaction}`)
     .then(res => res.json())
     .then(data => {
       if (recipient != data.source_account || addressPubKey != token_issuer)
-        throw "monException"
+        throw "Error Atomicity Transactions"
     });
   } catch (error) {
     console.error("Failed the previous hash transaction's creator is the sellerAddressPubKey! Please try again.");
