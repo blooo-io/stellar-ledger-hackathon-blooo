@@ -5,12 +5,21 @@
     </head>
     <body>
         <div className="body-container">
-            <h1>Scan from WebCam:</h1>
+            <h1>The seller scans the QR code</h1>
             <div id="video-container">
                 <video id="qr-video"></video>
             </div>           
             <b>Detected QR code: </b>
             <span id="cam-qr-result">None</span>
+            <br>
+            <b>Detected Latitude: </b>
+            <span id="qr-lat">None</span>
+            <br>
+            <b>Detected Longitude: </b>
+            <span id="qr-long">None</span>
+            <br>
+            <b>Detected Public Key: </b>
+            <span id="qr-pbk">None</span>
             <br>
             <b>Last detected at: </b>
             <span id="cam-qr-result-timestamp"></span>
@@ -33,6 +42,9 @@
                 const camQrResultTimestamp = document.getElementById('cam-qr-result-timestamp');
                 const fileSelector = document.getElementById('file-selector');
                 const fileQrResult = document.getElementById('file-qr-result');
+                const qrLat = document.getElementById('qr-lat');
+                const qrLong = document.getElementById('qr-long');
+                const qrPbk = document.getElementById('qr-pbk');
                 let data;
 
                 function setResult(label, result) {
@@ -43,7 +55,11 @@
                     label.style.color = 'teal';
                     clearTimeout(label.highlightTimeout);
                     label.highlightTimeout = setTimeout(() => label.style.color = 'inherit', 100);
-                    scanner.stop()    
+                    scanner.stop()
+                    let parsedData = data.split(",")
+                    qrLat.textContent = parsedData[0]
+                    qrLong.textContent = parsedData[1]
+                    qrPbk.textContent = parsedData[2]
                 }
             
                 // ####### Web Cam Scanning #######
