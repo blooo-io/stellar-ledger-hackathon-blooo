@@ -1,35 +1,35 @@
 <div class="d-flex flex-column justify-content-center m-5 align-items-center">
-    <p>Click on the bellow button to connect your Ledger Wallet</p>
-    <button class="btn btn-primary w-25" data-bs-toggle="modal" data-bs-target="#WalletModal">Connect your Wallet</button>
+  <p>Click on the bellow button to connect your Ledger Wallet</p>
+  <button class="btn btn-primary w-25" data-bs-toggle="modal" data-bs-target="#WalletModal">Connect your Wallet</button>
+</div>
+<div class="d-flex flex-row">
+  <div id="app" class="w-50">
+    <form class="row g-3">
+      <div class="col-md-12">
+        <label for="wallet" class="form-label">Wallet Public Key</label>
+        <input type="text" class="form-control" id="wallet" disabled>
+      </div>
+      <div class="col-md-12">
+        <label for="recipient" class="form-label" disabled>Balance</label>
+        <input type="text" class="form-control" id="balance">
+      </div>
+    </form>
   </div>
-  <div class="d-flex flex-row">
-    <div id="app" class="w-50">
-      <form class="row g-3">
-        <div class="col-md-12">
-          <label for="wallet" class="form-label">Wallet Public Key</label>
-          <input type="text" class="form-control" id="wallet" disabled>
-        </div>
-        <div class="col-md-12">
-          <label for="recipient" class="form-label" disabled>Balance</label>
-          <input type="text" class="form-control" id="balance">
-        </div>
-      </form>
-    </div>
-  </div>
+</div>
 
-  <!-- Modal -->
-  <div class="modal fade" id="WalletModal" tabindex="-1" aria-labelledby="WalletModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="WalletModalLabel">Choose your Wallet</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body d-flex justify-content-center">
-          <button id="connect-ledger" class="rounded-3 align-self-center" data-bs-dismiss="modal">
-            <img src="./assets/ledger-seeklogo.com.svg" class="card-img-top" alt="Ledger">
-          </button>
-        </div>
+<!-- Modal -->
+<div class="modal fade" id="WalletModal" tabindex="-1" aria-labelledby="WalletModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="WalletModalLabel">Choose your Wallet</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body d-flex justify-content-center">
+        <button id="connect-ledger" class="rounded-3 align-self-center" data-bs-dismiss="modal">
+          <img src="../assets/ledger-seeklogo.com.svg" class="card-img-top" alt="Ledger">
+        </button>
       </div>
     </div>
   </div>
+</div>

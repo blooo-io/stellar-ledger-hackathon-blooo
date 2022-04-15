@@ -1,24 +1,25 @@
-const route = (event) => {
-  event = event || window.event;
-  event.preventDefault();
-  window.history.pushState({}, "", event.target.href);
-  handleLocation();
-};
+// const route = (event) => {
+//   event = event || window.event;
+//   event.preventDefault();
+//   window.history.pushState({}, "", event.target.href);
+//   handleLocation();
+// };
 
-const routes = {
-  "/": "/pages/index.html",
-  "/buyer": "/pages/buyer.html",
-  "/seller": "/pages/seller.html",
-};
+// const routes = {
+//   "/": "/pages/home.html",
+//   "/buyer": "/pages/buyer.html",
+//   "/seller": "/pages/seller.html",
+//   "/seller_qr_code": "/pages/seller_qr_code.html",
+// };
 
-const handleLocation = async () => {
-  const path = window.location.pathname;
-  const route = routes[path];
-  const html = await fetch(route).then((data) => data.text());
-  document.getElementById("main-page").innerHTML = html;
-};
+// const handleLocation = async () => {
+//   const path = window.location.pathname;
+//   const route = routes[path];
+//   const html = await fetch(route).then((data) => data.text());
+//   document.getElementById("main-page").innerHTML = html;
+// };
 
-window.onpopstate = handleLocation;
-window.route = route;
+// window.onpopstate = handleLocation;
+// window.route = route;
 
-handleLocation();
+// handleLocation();
