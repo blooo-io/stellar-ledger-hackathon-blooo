@@ -33,45 +33,9 @@ const getStrPublicKey = async () => {
   return result.publicKey;
 };
 
-// Buyer send token transaction
-const buyerTransaction = async (addressPubKey) => {
-  const token = new StellarSdk.Asset(
-    "Blooo",
-    "GC2BKLYOOYPDEFJKLKY6FNNRQMGFLVHJKQRGNSSRRGSMPGF32LHCQVGF",
-  );
-  const accountInfo = await server.loadAccount(addressWallet);
-  const transaction = new StellarSdk.TransactionBuilder(accountInfo, {
-      fee: StellarSdk.BASE_FEE,
-      networkPassphrase: StellarSdk.Networks.TESTNET,
-      timebounds: await server.fetchTimebounds(100),
-    })
-      .addOperation(StellarSdk.Operation.manageData(
-        {
-        name: "token",
-        value: token,
-        }
-      ))
-      .addMemo(StellarSdk.Memo.text("Test Transaction"))
-      .build();
-  const result = await str.signTransaction(
-    "44'/148'/0'",
-    transaction.signatureBase()
-  );
-
-  // add signature to transaction
-  const keyPair = StellarSdk.Keypair.fromPublicKey(addressPubKey);
-  const hint = keyPair.signatureHint();
-  const decorated = new StellarSdk.xdr.DecoratedSignature({
-    hint: hint,
-    signature: result.signature,
-  });
-  transaction.signatures.push(decorated);
-
-  return transaction;
-};
-
 // Seller send data transaction in order to generate a new qrcode
 const sellerTransaction = async (addressPubKey, latlong, price, date, token) => {
+
   const accountInfo = await server.loadAccount(addressWallet);
   const transaction = new StellarSdk.TransactionBuilder(accountInfo, {
       fee: StellarSdk.BASE_FEE,
