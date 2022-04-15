@@ -26,6 +26,7 @@
     "@ledgerhq/hw-app-str": "^6.24.1",
     "@ledgerhq/hw-transport-webusb": "^6.19.0",
     "@ledgerhq/logs": "^6.10.0",
+    "qr-scanner": "^1.4.1",
     "stellar-sdk": "^10.0.1"
   },
   "bugs": {
